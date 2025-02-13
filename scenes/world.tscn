@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://cenulxvjf3twu"]
+[gd_scene load_steps=27 format=3 uid="uid://cenulxvjf3twu"]
 
 [ext_resource type="PackedScene" uid="uid://uqnipnl0gf2h" path="res://characters/player.tscn" id="1_16p6v"]
 [ext_resource type="PackedScene" uid="uid://ijdorn145jqa" path="res://scenes/bg.tscn" id="1_p234c"]
@@ -27,6 +27,24 @@ font_size = 80
 
 [sub_resource type="LabelSettings" id="LabelSettings_lgw42"]
 font_size = 30
+
+[sub_resource type="GDScript" id="GDScript_18xgo"]
+resource_name = "experience"
+script/source = "extends Node2D
+
+var player
+var maxBarWidth
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	maxBarWidth = $Full.size.x
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta: float) -> void:
+	$Label.text = \"Level \" + str(Global.playerLevel)
+	$Full.size.x = min(maxBarWidth*($\"../../Player\".experience/Global.levelUpExperience[Global.playerLevel]), maxBarWidth)
+"
 
 [sub_resource type="GDScript" id="GDScript_117ql"]
 resource_name = "slimeball"
@@ -241,6 +259,34 @@ offset_bottom = 56.0
 color = Color(0.252028, 0.252028, 0.252028, 1)
 
 [node name="Label" type="Label" parent="UI/Health"]
+z_index = 2
+offset_left = 139.0
+offset_top = 10.0
+offset_right = 253.0
+offset_bottom = 52.0
+text = "100/100"
+label_settings = SubResource("LabelSettings_lgw42")
+
+[node name="Exp" type="Node2D" parent="UI"]
+position = Vector2(0, 54)
+script = SubResource("GDScript_18xgo")
+
+[node name="Full" type="ColorRect" parent="UI/Exp"]
+z_index = 1
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 376.0
+offset_bottom = 56.0
+color = Color(0.145298, 0.781559, 3.85046e-07, 1)
+
+[node name="Empty" type="ColorRect" parent="UI/Exp"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 376.0
+offset_bottom = 56.0
+color = Color(0.252028, 0.252028, 0.252028, 1)
+
+[node name="Label" type="Label" parent="UI/Exp"]
 z_index = 2
 offset_left = 139.0
 offset_top = 10.0

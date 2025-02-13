@@ -64,10 +64,13 @@ func chaseAndAttack(delta: float):
 		
 	move_and_slide()
 
+func die():
+	player.get_experience(experience)
+	queue_free()
 
 func _on_hurt_box_area_entered(area: Area2D) -> void:
 	if area.is_in_group("Attack"):
 		health -= area.damage
 		area.hit()
 		if health <= 0:
-			queue_free()
+			die()

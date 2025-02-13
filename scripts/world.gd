@@ -8,6 +8,9 @@ var rng
 const X_RANGE = Vector2(16, 1456)
 const Y_RANGE = Vector2(16, 656)
 
+const INCREASE_DIFICULTY_INTERVAL = 10
+var timeSinceIncreasedDificulty = 0.0
+
 var mobScenes = {
 	Global.mobs.CHICKEN: chickenScene
 }
@@ -54,3 +57,10 @@ func _process(delta: float) -> void:
 		if mobDeltas[currMob] >= Global.chickenSpawnRate:
 			mobDeltas[currMob] -= Global.chickenSpawnRate
 			spawnMob(currMob)
+			
+	timeSinceIncreasedDificulty += delta
+	if timeSinceIncreasedDificulty >= INCREASE_DIFICULTY_INTERVAL:
+		Global.chickenSpawnRate -= 0.1
+		Global.damageMultiplier += 0.1
+		Global.healthMultiplier += 0.1
+		timeSinceIncreasedDificulty -= INCREASE_DIFICULTY_INTERVAL

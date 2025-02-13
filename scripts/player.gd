@@ -23,6 +23,7 @@ var abilitiesRanges = {
 }
 
 @export var health = 100
+@export var experience = 0.0
 
 var idleAnimationMapper := {
 	positions.DOWN: "Idle - Facing front",
@@ -118,6 +119,13 @@ func move(delta):
 			anim.play(stillAnimationMapper[previousPosition])
 			
 	move_and_slide()
+	
+func get_experience(amount):
+	experience += amount
+	if experience >= Global.levelUpExperience[Global.playerLevel]:
+		if Global.levelUpExperience.get(Global.playerLevel + 1):
+			experience -= Global.levelUpExperience[Global.playerLevel]
+			Global.playerLevel += 1
 	
 func die():
 	get_tree().change_scene_to_file("res://scenes/game_over.tscn")
