@@ -15,7 +15,8 @@ var chickenSpawnRate = 1
 
 # player
 var playerSpeed = 1
+enum abilities { SLIMEBALL }
 var abilitiesFrequency = {
-	"SlimeBall": 0.8
+	abilities.SLIMEBALL: 0.8
 }
 var playerRangeMultiplier = 1

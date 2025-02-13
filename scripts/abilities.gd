@@ -8,7 +8,7 @@ func _ready():
 	for ability in self.get_children():
 		var front = ability.get_node("Front")
 		var back = ability.get_node("Back")
-		abilities[ability.name] = [front, back.size.y]
+		abilities[ability.abilityName] = [front, back.size.y]
 
 func _process(_delta: float) -> void:
 	for abilityName in abilities.keys():

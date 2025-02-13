@@ -13,13 +13,13 @@ var enemies = []
 var bulletScene = preload("res://scenes/bullet.tscn")
 
 @export var abilitiesDelta = {
-	"SlimeBall": 0
+	Global.abilities.SLIMEBALL: 0
 }
 var abilitiesFunctions = {
-	"SlimeBall": shootSlimeBall
+	Global.abilities.SLIMEBALL: shootSlimeBall
 }
 var abilitiesRanges = {
-	"SlimeBall": 250
+	Global.abilities.SLIMEBALL: 250
 }
 
 @export var health = 100
@@ -128,10 +128,10 @@ func takeDamage(damage: int) -> void:
 		call_deferred("die")
 
 func shootSlimeBall():
-	if abilitiesDelta["SlimeBall"] < Global.abilitiesFrequency["SlimeBall"]:
+	if abilitiesDelta[Global.abilities.SLIMEBALL] < Global.abilitiesFrequency[Global.abilities.SLIMEBALL]:
 		return false
 	var closestEnemy
-	var closestEnemyDistance = abilitiesRanges["SlimeBall"] + 1
+	var closestEnemyDistance = abilitiesRanges[Global.abilities.SLIMEBALL] + 1
 	for currEnemy in enemies:
 		var currDistance = (currEnemy.position - self.position).length()
 		if currDistance < closestEnemyDistance:
