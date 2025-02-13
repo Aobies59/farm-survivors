@@ -10,7 +10,7 @@ func _ready():
 		var back = ability.get_node("Back")
 		abilities[ability.name] = [front, back.size.y]
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	for abilityName in abilities.keys():
-		abilities[abilityName][0].size.y = abilities[abilityName][1] - abilities[abilityName][1]*(player.abilitiesDelta[abilityName]/player.abilitiesFrequency[abilityName])
+		abilities[abilityName][0].size.y = abilities[abilityName][1] - abilities[abilityName][1]*(player.abilitiesDelta[abilityName]/Global.abilitiesFrequency[abilityName])
 		

@@ -4,13 +4,12 @@ const ATTACKING_DISTANCE = 20
 const ATTACKING_RATE = 0.6
 var timeSinceAttack = 0
 var attackDamage = 10
-var health = 20
+
+var health = 10 * Global.healthMultiplier
+const experience = 10
 
 var player
-var angleToPlayer
-var chasing = false
 var attacking = false
-var stopped = true
 @onready var anim = get_node("AnimationPlayer")
 var slashAttack = preload("res://scenes/slash_attack.tscn")
 
@@ -19,18 +18,15 @@ const FACING_RIGHT = 1
 var previousPosition = FACING_RIGHT
 
 const PLAYER_NAME = "Player"
-const SPEED = 8 * 1000
+const SPEED = 1 * Global.SPEED_MULTIPLIER
 
 func _ready():
 	player = get_node("../../Player")
-	angleToPlayer = self.rotation
 
 func _physics_process(delta: float) -> void:
 	chaseAndAttack(delta)
 	
-	move_and_slide()
-	
-func attack():
+func attack(angleToPlayer):
 	var attackInstance = slashAttack.instantiate()
 	add_child(attackInstance)
 	attackInstance.rotation = angleToPlayer
@@ -38,11 +34,10 @@ func attack():
 	
 func chaseAndAttack(delta: float):
 	var direction = (player.position - self.position).normalized()
-	angleToPlayer = atan2(direction.y, direction.x)
 	var distanceToPlayer = (player.position - self.position).length()
 	
 	timeSinceAttack = min(ATTACKING_RATE, timeSinceAttack + delta)
-	if distanceToPlayer <= ATTACKING_DISTANCE:
+	if distanceToPlayer <= ATTACKING_DISTANCE or (timeSinceAttack != 0 and timeSinceAttack != ATTACKING_RATE) :
 		attacking = true
 	else:
 		attacking = false
@@ -53,11 +48,11 @@ func chaseAndAttack(delta: float):
 		else:
 			anim.play("StoppedRight")
 		if timeSinceAttack >= ATTACKING_RATE:
-			attack()
+			attack(atan2(direction.y, direction.x))
 			timeSinceAttack = 0
 		velocity.x = 0
 		velocity.y = 0
-	elif chasing:
+	else:
 		if direction.x >= 0:
 			anim.play("MoveRight")
 			previousPosition = FACING_RIGHT
@@ -66,22 +61,8 @@ func chaseAndAttack(delta: float):
 			previousPosition = FACING_LEFT
 		velocity.x = direction.x * SPEED * delta
 		velocity.y = direction.y * SPEED * delta
-	else:
-		velocity.x = 0
-		velocity.y = 0
-		if previousPosition == FACING_RIGHT:
-			anim.play("IdleRight")
-		else:
-			anim.play("IdleLeft")
-
-func _on_area_2d_body_entered(body: Node2D) -> void:
-	if body.name == PLAYER_NAME:
-		chasing = true
 		
-
-func _on_player_exited_body_exited(body: Node2D) -> void:
-	if body.name == PLAYER_NAME:
-		chasing = false
+	move_and_slide()
 
 
 func _on_hurt_box_area_entered(area: Area2D) -> void:

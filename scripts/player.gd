@@ -1,42 +1,41 @@
 extends CharacterBody2D
 
-const SPEED = 10.0 * 1000.0
+var speed = Global.playerSpeed * Global.SPEED_MULTIPLIER
 
-const FACING_UP = 0
-const FACING_LEFT = 1
-const FACING_RIGHT = 2
-const FACING_DOWN = 3
-var previousPosition = FACING_DOWN
+enum positions { UP, LEFT, RIGHT, DOWN }
+var previousPosition = positions.DOWN
 
-const LINEAL = 0
-const DIAGONAL = 1
-var previousAction = LINEAL
+enum actions { LINEAL, DIAGONAL }
+var previousAction = actions.LINEAL
 
-var enemiesInRange = []
+var enemies = []
 
 var bulletScene = preload("res://scenes/bullet.tscn")
+
 @export var abilitiesDelta = {
 	"SlimeBall": 0
 }
-@export var abilitiesFrequency = {
-	"SlimeBall": 1
+var abilitiesFunctions = {
+	"SlimeBall": shootSlimeBall
 }
-var shootingRange = 250
+var abilitiesRanges = {
+	"SlimeBall": 250
+}
 
 @export var health = 100
 
 var idleAnimationMapper := {
-	FACING_DOWN: "Idle - Facing front",
-	FACING_UP: "Idle - Facing back",
-	FACING_LEFT: "Idle - Facing left",
-	FACING_RIGHT: "Idle - Facing right"
+	positions.DOWN: "Idle - Facing front",
+	positions.UP: "Idle - Facing back",
+	positions.LEFT: "Idle - Facing left",
+	positions.RIGHT: "Idle - Facing right"
 }
 
 var stillAnimationMapper := {
-	FACING_DOWN: "Still - Facing front",
-	FACING_UP: "Still - Facing back",
-	FACING_LEFT: "Still - Facing left",
-	FACING_RIGHT: "Still - Facing right"
+	positions.DOWN: "Still - Facing front",
+	positions.UP: "Still - Facing back",
+	positions.LEFT: "Still - Facing left",
+	positions.RIGHT: "Still - Facing right"
 }
 
 @onready var anim = get_node("AnimationPlayer")
@@ -45,20 +44,20 @@ func _ready() -> void:
 	anim.play("Idle - Facing front")
 
 func runLeft():
-	previousPosition = FACING_LEFT
+	previousPosition = positions.LEFT
 	anim.play("Run - Facing left")
 	
 func runRight():
-	previousPosition = FACING_RIGHT
+	previousPosition = positions.RIGHT
 	anim.play("Run - Facing right")
 	
 func runDown():
 	anim.play("Run - Facing front")
-	previousPosition = FACING_DOWN
+	previousPosition = positions.DOWN
 	
 func runUp():
 	anim.play("Run - Facing back")
-	previousPosition = FACING_UP
+	previousPosition = positions.UP
 	
 var timeSinceAction = 0
 func move(delta):
@@ -68,26 +67,26 @@ func move(delta):
 	).normalized()
 	if inputVector:
 		timeSinceAction = 0
-		velocity.x = inputVector[0] * SPEED * delta
-		velocity.y = inputVector[1] * SPEED * delta
+		velocity.x = inputVector[0] * speed * delta
+		velocity.y = inputVector[1] * speed * delta
 		if inputVector[0] != 0 and inputVector[1] != 0:
-			if previousAction == LINEAL:
-				if velocity.x > 0 and previousPosition != FACING_RIGHT:
+			if previousAction == actions.LINEAL:
+				if velocity.x > 0 and previousPosition != positions.RIGHT:
 					runRight()
-				elif velocity.x < 0 and previousPosition != FACING_LEFT:
+				elif velocity.x < 0 and previousPosition != positions.LEFT:
 					runLeft()
-				elif velocity.y > 0 and previousPosition != FACING_DOWN:
+				elif velocity.y > 0 and previousPosition != positions.DOWN:
 					runDown()
 				else:
 					runUp()
 			else:
-				if velocity.x > 0 and previousPosition == FACING_RIGHT:
+				if velocity.x > 0 and previousPosition == positions.RIGHT:
 					runRight()
-				elif velocity.x < 0 and previousPosition == FACING_LEFT:
+				elif velocity.x < 0 and previousPosition == positions.LEFT:
 					runLeft()
-				elif velocity.y > 0 and previousPosition == FACING_DOWN:
+				elif velocity.y > 0 and previousPosition == positions.DOWN:
 					runDown()
-				elif velocity.y < 0 and previousPosition == FACING_UP:
+				elif velocity.y < 0 and previousPosition == positions.UP:
 					runUp()
 				else:
 					if velocity.x > 0:
@@ -98,9 +97,9 @@ func move(delta):
 						runDown()
 					elif velocity.y < 0:
 						runUp()
-			previousAction = DIAGONAL
+			previousAction = actions.DIAGONAL
 		else:
-			previousAction = LINEAL
+			previousAction = actions.LINEAL
 			if velocity.x > 0:
 				runRight()
 			elif velocity.x < 0:
@@ -110,8 +109,8 @@ func move(delta):
 			else:
 				runUp()
 	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED * delta)
-		velocity.y = move_toward(velocity.y, 0, SPEED * delta)
+		velocity.x = move_toward(velocity.x, 0, speed * delta)
+		velocity.y = move_toward(velocity.y, 0, speed * delta)
 		timeSinceAction += delta
 		if timeSinceAction >= 1.5:
 			anim.play(idleAnimationMapper[previousPosition])
@@ -120,32 +119,41 @@ func move(delta):
 			
 	move_and_slide()
 	
+func die():
+	get_tree().change_scene_to_file("res://scenes/game_over.tscn")
+	
 func takeDamage(damage: int) -> void:
 	health -= damage
+	if health <= 0:
+		call_deferred("die")
 
-func shoot():
+func shootSlimeBall():
+	if abilitiesDelta["SlimeBall"] < Global.abilitiesFrequency["SlimeBall"]:
+		return false
 	var closestEnemy
-	var closestEnemyDistance = shootingRange + 1
-	for currEnemy in enemiesInRange:
+	var closestEnemyDistance = abilitiesRanges["SlimeBall"] + 1
+	for currEnemy in enemies:
 		var currDistance = (currEnemy.position - self.position).length()
 		if currDistance < closestEnemyDistance:
 			closestEnemy = currEnemy
 			closestEnemyDistance = currDistance
 	if not closestEnemy:
-		return
+		return false
 	var direction = (closestEnemy.position - self.position).normalized()
 	var bullet = bulletScene.instantiate()
 	add_child(bullet)
 	bullet.shoot(direction)
+	return true
+
+func triggerAbilities(delta: float):
+	for abilityName in abilitiesDelta.keys():
+		abilitiesDelta[abilityName] = min(abilitiesDelta[abilityName] + delta, Global.abilitiesFrequency[abilityName])
+		if abilitiesFunctions[abilityName].call():
+			abilitiesDelta[abilityName] = 0
 
 func _process(delta: float) -> void:
-	abilitiesDelta["SlimeBall"] = min(abilitiesDelta["SlimeBall"] + delta, abilitiesFrequency["SlimeBall"])
-	if abilitiesDelta["SlimeBall"] >= abilitiesFrequency["SlimeBall"] and len(enemiesInRange) > 0:
-		abilitiesDelta["SlimeBall"] = 0
-		shoot()
-	
-	if health <= 0:
-		get_tree().change_scene_to_file("res://scenes/game_over.tscn")
+	enemies = get_node("../Mobs").get_children()
+	triggerAbilities(delta)
 
 func _physics_process(delta: float) -> void:
 	move(delta)
@@ -158,13 +166,3 @@ func _on_hurt_area_body_entered(body: Node2D) -> void:
 func _on_hurt_area_area_entered(area: Area2D) -> void:
 	if area.is_in_group("Damaging"):
 		takeDamage(area.damage)
-
-
-func _on_shooting_range_body_entered(body: Node2D) -> void:
-	if body.is_in_group("Enemy"):
-		enemiesInRange.append(body)
-
-
-func _on_shooting_range_body_exited(body: Node2D) -> void:
-	if body in enemiesInRange:
-		enemiesInRange.erase(body)
