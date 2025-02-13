@@ -573,7 +573,7 @@ animation = &"Idle - Facing front"
 frame = 1
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(2, 2)
+zoom = Vector2(3, 3)
 limit_left = 0
 limit_top = 0
 limit_right = 1470

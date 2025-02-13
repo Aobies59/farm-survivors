@@ -15,9 +15,13 @@ var previousAction = LINEAL
 var enemiesInRange = []
 
 var bulletScene = preload("res://scenes/bullet.tscn")
+@export var abilitiesDelta = {
+	"SlimeBall": 0
+}
+@export var abilitiesFrequency = {
+	"SlimeBall": 1
+}
 var shootingRange = 250
-var shootingFrequency = 1
-var timeSinceShot = 0
 
 @export var health = 100
 
@@ -135,9 +139,9 @@ func shoot():
 	bullet.shoot(direction)
 
 func _process(delta: float) -> void:
-	timeSinceShot = min(timeSinceShot + delta, shootingFrequency)
-	if timeSinceShot >= shootingFrequency and len(enemiesInRange) > 0:
-		timeSinceShot = 0
+	abilitiesDelta["SlimeBall"] = min(abilitiesDelta["SlimeBall"] + delta, abilitiesFrequency["SlimeBall"])
+	if abilitiesDelta["SlimeBall"] >= abilitiesFrequency["SlimeBall"] and len(enemiesInRange) > 0:
+		abilitiesDelta["SlimeBall"] = 0
 		shoot()
 	
 	if health <= 0:

@@ -41,12 +41,11 @@ func chaseAndAttack(delta: float):
 	angleToPlayer = atan2(direction.y, direction.x)
 	var distanceToPlayer = (player.position - self.position).length()
 	
-	if distanceToPlayer <= ATTACKING_DISTANCE or timeSinceAttack > 0:
+	timeSinceAttack = min(ATTACKING_RATE, timeSinceAttack + delta)
+	if distanceToPlayer <= ATTACKING_DISTANCE:
 		attacking = true
-		timeSinceAttack += delta
 	else:
 		attacking = false
-		timeSinceAttack = 0
 		
 	if attacking:
 		if previousPosition == FACING_LEFT:
