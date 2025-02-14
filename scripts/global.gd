@@ -14,15 +14,12 @@ var healthMultiplier = 1.0
 var chickenSpawnRate = 1.0
 
 # player
+enum abilities { SLIMEBALL }
+var abilitiesFrequency = {
+	abilities.SLIMEBALL: 0.8
+}
 var levelUpExperience = {
 	1 : 100,
 	2: 150,
 	3: 200
 }
-var playerLevel = 1
-var playerSpeed = 1
-enum abilities { SLIMEBALL }
-var abilitiesFrequency = {
-	abilities.SLIMEBALL: 0.8
-}
-var playerRangeMultiplier = 1

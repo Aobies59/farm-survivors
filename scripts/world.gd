@@ -22,13 +22,18 @@ var timeSinceChickenSpawn = 0
 
 @export var paused = false
 
-var player
+var player: CharacterBody2D
 var camera: Camera2D
 var testArea: Area2D
+
+var viewportSize: Vector2
+var cameraZoom: Vector2
 
 func _ready() -> void:
 	player = get_node("Player")	
 	camera = player.get_node("Camera2D")
+	viewportSize = Vector2(get_viewport_rect().size)
+	cameraZoom = Vector2(camera.zoom)
 	randomize()
 	
 	testArea = Area2D.new()
@@ -40,16 +45,10 @@ func _ready() -> void:
 	self.add_child(testArea)
 	
 func spawnMob(mobName):
-	var viewportSize = Vector2(get_viewport_rect().size)
-	var cameraZoom = Vector2(camera.zoom)
-	var cameraRect = Rect2(
-		camera.global_position - (viewportSize / 2 * cameraZoom),
-		viewportSize * cameraZoom
-	)
-	var smallXRange = range(X_RANGE[0], player.position.x - 960/camera.zoom.x)
-	var bigXRange = range(player.position.x + 960/camera.zoom.x, X_RANGE[1])
-	var smallYRange = range(Y_RANGE[0], player.position.y - 540/camera.zoom.y)
-	var bigYRange = range(player.position.y + 540/camera.zoom.y, Y_RANGE[1])
+	var smallXRange = range(X_RANGE[0], player.position.x - viewportSize.x/2/camera.zoom.x)
+	var bigXRange = range(player.position.x + viewportSize.x/2/camera.zoom.x, X_RANGE[1])
+	var smallYRange = range(Y_RANGE[0], player.position.y - viewportSize.y/2/camera.zoom.y)
+	var bigYRange = range(player.position.y + viewportSize.y/2/camera.zoom.y, Y_RANGE[1])
 	
 	var xRange = smallXRange + bigXRange
 	var yRange = smallYRange + bigYRange
@@ -62,6 +61,7 @@ func spawnMob(mobName):
 	if testArea.has_overlapping_areas() or testArea.has_overlapping_bodies():
 		mobDeltas[mobName] = Global.spawnRates[mobName]
 	else:
+		mobDeltas[mobName] = 0
 		var mob = mobScenes[mobName].instantiate()
 		$Mobs.add_child(mob)
 		mob.position = enemyPosition
@@ -71,7 +71,6 @@ func _process(delta: float) -> void:
 	for currMob in Global.spawnableMobs:
 		mobDeltas[currMob] += delta
 		if mobDeltas[currMob] >= Global.chickenSpawnRate:
-			mobDeltas[currMob] -= Global.chickenSpawnRate
 			spawnMob(currMob)
 			
 	timeSinceIncreasedDificulty += delta

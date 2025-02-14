@@ -1,6 +1,15 @@
 extends CharacterBody2D
 
-var speed = Global.playerSpeed * Global.SPEED_MULTIPLIER
+
+@export var level = 1
+
+# stats
+var playerSpeed = 1
+var playerRangeMultiplier = 1
+var playerDamageMultiplier = 1
+var playerShootingFrequencyMultiplier = 1
+
+var speed = playerSpeed * Global.SPEED_MULTIPLIER
 
 enum positions { UP, LEFT, RIGHT, DOWN }
 var previousPosition = positions.DOWN
@@ -122,10 +131,10 @@ func move(delta):
 	
 func get_experience(amount):
 	experience += amount
-	if experience >= Global.levelUpExperience[Global.playerLevel]:
-		if Global.levelUpExperience.get(Global.playerLevel + 1):
-			experience -= Global.levelUpExperience[Global.playerLevel]
-			Global.playerLevel += 1
+	if experience >= Global.levelUpExperience[level]:
+		if Global.levelUpExperience.get(level + 1):
+			experience -= Global.levelUpExperience[level]
+			level += 1
 	
 func die():
 	get_tree().change_scene_to_file("res://scenes/game_over.tscn")

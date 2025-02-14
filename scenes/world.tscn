@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://cenulxvjf3twu"]
+[gd_scene load_steps=32 format=3 uid="uid://cenulxvjf3twu"]
 
 [ext_resource type="PackedScene" uid="uid://uqnipnl0gf2h" path="res://characters/player.tscn" id="1_16p6v"]
 [ext_resource type="PackedScene" uid="uid://ijdorn145jqa" path="res://scenes/bg.tscn" id="1_p234c"]
@@ -42,8 +42,8 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
-	$Label.text = \"Level \" + str(Global.playerLevel)
-	$Full.size.x = min(maxBarWidth*($\"../../Player\".experience/Global.levelUpExperience[Global.playerLevel]), maxBarWidth)
+	$Label.text = \"Level \" + str($\"../../Player\".level)
+	$Full.size.x = min(maxBarWidth*($\"../../Player\".experience/Global.levelUpExperience[$\"../../Player\".level]), maxBarWidth)
 "
 
 [sub_resource type="GDScript" id="GDScript_117ql"]
@@ -192,13 +192,55 @@ func _process(delta: float) -> void:
 [sub_resource type="LabelSettings" id="LabelSettings_mvf48"]
 font_size = 50
 
+[sub_resource type="GDScript" id="GDScript_ic0eh"]
+resource_name = "stats"
+script/source = "extends Node2D
+
+var damage: Label
+var shootingRange: Label
+var speed: Label
+var shootingSpeed: Label
+
+var player: CharacterBody2D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	player = $\"../../Player\"
+	damage = $Damage
+	shootingRange = $Range
+	speed = $Speed
+	shootingSpeed = $ShootSpeed
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta: float) -> void:
+	damage.text = \"Damage: \" + str(player.playerDamageMultiplier) + \"x\"
+	shootingRange.text = \"Range: \" + str(player.playerRangeMultiplier) + \"x\"
+	speed.text = \"Speed: \" + str(player.playerSpeed)
+	shootingSpeed.text = \"S.Speed: \" + str(player.playerShootingFrequencyMultiplier) + \"x\"
+"
+
+[sub_resource type="LabelSettings" id="LabelSettings_qw1ur"]
+font_size = 30
+
+[sub_resource type="GDScript" id="GDScript_s4qb4"]
+resource_name = "items"
+script/source = "extends Node2D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
 [node name="World" type="Node2D"]
 script = ExtResource("1_vmkrc")
 
 [node name="Background" parent="." instance=ExtResource("1_p234c")]
-
-[node name="Node2D" type="Node2D" parent="."]
-position = Vector2(841, 508)
 
 [node name="Player" parent="." instance=ExtResource("1_16p6v")]
 position = Vector2(768, 328)
@@ -358,6 +400,43 @@ offset_right = 940.0
 offset_bottom = 74.0
 text = "0"
 label_settings = SubResource("LabelSettings_mvf48")
+
+[node name="Stats" type="Node2D" parent="UI"]
+position = Vector2(1682, 14)
+script = SubResource("GDScript_ic0eh")
+
+[node name="Damage" type="Label" parent="UI/Stats"]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Damage: 0"
+label_settings = SubResource("LabelSettings_qw1ur")
+
+[node name="Range" type="Label" parent="UI/Stats"]
+offset_top = 35.0
+offset_right = 153.0
+offset_bottom = 77.0
+text = "Range: 0
+"
+label_settings = SubResource("LabelSettings_qw1ur")
+
+[node name="Speed" type="Label" parent="UI/Stats"]
+offset_top = 70.0
+offset_right = 153.0
+offset_bottom = 112.0
+text = "Speed: 0
+"
+label_settings = SubResource("LabelSettings_qw1ur")
+
+[node name="ShootSpeed" type="Label" parent="UI/Stats"]
+offset_top = 105.0
+offset_right = 153.0
+offset_bottom = 147.0
+text = "ShootSpeed: 0"
+label_settings = SubResource("LabelSettings_qw1ur")
+
+[node name="Items" type="Node2D" parent="UI"]
+position = Vector2(1682, 170)
+script = SubResource("GDScript_s4qb4")
 
 [connection signal="pressed" from="PauseMenu/Continue" to="PauseMenu" method="_on_continue_pressed"]
 [connection signal="pressed" from="PauseMenu/Quit" to="PauseMenu" method="_on_quit_pressed"]
