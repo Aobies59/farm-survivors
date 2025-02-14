@@ -6,7 +6,7 @@ var spawnerThread = Thread.new()
 var chickenScene = preload("res://characters/chicken.tscn")
 var rng
 const X_RANGE = Vector2(16, 1456)
-const Y_RANGE = Vector2(16, 656)
+const Y_RANGE = Vector2(12, 656)
 
 const INCREASE_DIFICULTY_INTERVAL = 10
 var timeSinceIncreasedDificulty = 0.0
@@ -22,33 +22,49 @@ var timeSinceChickenSpawn = 0
 
 @export var paused = false
 
+var player
+var camera: Camera2D
+var testArea: Area2D
+
 func _ready() -> void:
+	player = get_node("Player")	
+	camera = player.get_node("Camera2D")
 	randomize()
 	
-func spawnMob(mobName):
-	var testArea = Area2D.new()
+	testArea = Area2D.new()
 	var collisionShape = CircleShape2D.new()
-	collisionShape.radius = 100
+	collisionShape.radius = 15
 	var collision = CollisionShape2D.new()
 	collision.shape = collisionShape
 	testArea.add_child(collision)
 	self.add_child(testArea)
 	
-	var xCoordinate
-	var yCoordinate
-
-	xCoordinate = randf_range(X_RANGE[0], X_RANGE[1])
-	yCoordinate = randf_range(Y_RANGE[0], Y_RANGE[1])
-	testArea.position = Vector2(xCoordinate, yCoordinate)
-	if len(testArea.get_overlapping_areas()) > 0 or len(testArea.get_overlapping_bodies()) > 0:
-		mobDeltas[mobName] = Global.spawnRates[mobName]
-		return
-
-	testArea.queue_free()
+func spawnMob(mobName):
+	var viewportSize = Vector2(get_viewport_rect().size)
+	var cameraZoom = Vector2(camera.zoom)
+	var cameraRect = Rect2(
+		camera.global_position - (viewportSize / 2 * cameraZoom),
+		viewportSize * cameraZoom
+	)
+	var smallXRange = range(X_RANGE[0], player.position.x - 960/camera.zoom.x)
+	var bigXRange = range(player.position.x + 960/camera.zoom.x, X_RANGE[1])
+	var smallYRange = range(Y_RANGE[0], player.position.y - 540/camera.zoom.y)
+	var bigYRange = range(player.position.y + 540/camera.zoom.y, Y_RANGE[1])
 	
-	var mob = mobScenes[mobName].instantiate()
-	$Mobs.add_child(mob)
-	mob.position = Vector2(xCoordinate, yCoordinate)
+	var xRange = smallXRange + bigXRange
+	var yRange = smallYRange + bigYRange
+	
+	var enemyPosition = Vector2(
+		xRange[randi() % xRange.size()],
+		yRange[randi() % yRange.size()],
+	)
+	testArea.position = enemyPosition
+	if testArea.has_overlapping_areas() or testArea.has_overlapping_bodies():
+		mobDeltas[mobName] = Global.spawnRates[mobName]
+	else:
+		var mob = mobScenes[mobName].instantiate()
+		$Mobs.add_child(mob)
+		mob.position = enemyPosition
 
 
 func _process(delta: float) -> void:

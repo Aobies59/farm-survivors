@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://uqnipnl0gf2h"]
+[gd_scene load_steps=37 format=3 uid="uid://uqnipnl0gf2h"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_cv2j1"]
 [ext_resource type="Texture2D" uid="uid://bya7h0o66spm8" path="res://resources/Sprout Lands - Sprites - Basic pack/Characters/Basic Charakter Spritesheet.png" id="2_7a3bq"]
@@ -552,8 +552,10 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qufdk"]
 size = Vector2(23, 23)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uxude"]
+size = Vector2(640, 360)
+
 [node name="Player" type="CharacterBody2D"]
-position = Vector2(293, 170)
 script = ExtResource("1_cv2j1")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -581,6 +583,11 @@ autoplay = "Idle - Facing front"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtArea"]
 shape = SubResource("RectangleShape2D_qufdk")
+
+[node name="Viewport" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Viewport"]
+shape = SubResource("RectangleShape2D_uxude")
 
 [connection signal="area_entered" from="HurtArea" to="." method="_on_hurt_area_area_entered"]
 [connection signal="body_entered" from="HurtArea" to="." method="_on_hurt_area_body_entered"]

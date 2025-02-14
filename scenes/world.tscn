@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://cenulxvjf3twu"]
+[gd_scene load_steps=29 format=3 uid="uid://cenulxvjf3twu"]
 
 [ext_resource type="PackedScene" uid="uid://uqnipnl0gf2h" path="res://characters/player.tscn" id="1_16p6v"]
 [ext_resource type="PackedScene" uid="uid://ijdorn145jqa" path="res://scenes/bg.tscn" id="1_p234c"]
@@ -172,10 +172,33 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="GDScript" id="GDScript_87jqc"]
+resource_name = "time"
+script/source = "extends Node2D
+
+var time = 0.0
+
+var previousTextLength = 0
+
+func roundToDecimal(num, digit):
+	return round(num * pow(10.0, digit)) / pow(10.0, digit)
+
+func _process(delta: float) -> void:
+	time += delta
+	$Label.text = \"%.2f\" % time
+	$Label.position.x = 1920.0/2.0 - $Label.size.x/2.0
+"
+
+[sub_resource type="LabelSettings" id="LabelSettings_mvf48"]
+font_size = 50
+
 [node name="World" type="Node2D"]
 script = ExtResource("1_vmkrc")
 
 [node name="Background" parent="." instance=ExtResource("1_p234c")]
+
+[node name="Node2D" type="Node2D" parent="."]
+position = Vector2(841, 508)
 
 [node name="Player" parent="." instance=ExtResource("1_16p6v")]
 position = Vector2(768, 328)
@@ -324,6 +347,17 @@ offset_top = 941.0
 offset_right = 145.0
 offset_bottom = 1061.0
 color = Color(0.101868, 0.101868, 0.101868, 0.478431)
+
+[node name="Time" type="Node2D" parent="UI"]
+script = SubResource("GDScript_87jqc")
+
+[node name="Label" type="Label" parent="UI/Time"]
+offset_left = 911.0
+offset_top = 5.0
+offset_right = 940.0
+offset_bottom = 74.0
+text = "0"
+label_settings = SubResource("LabelSettings_mvf48")
 
 [connection signal="pressed" from="PauseMenu/Continue" to="PauseMenu" method="_on_continue_pressed"]
 [connection signal="pressed" from="PauseMenu/Quit" to="PauseMenu" method="_on_quit_pressed"]
