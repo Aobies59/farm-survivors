@@ -11,7 +11,7 @@ const experience = 10
 var player
 var attacking = false
 @onready var anim = get_node("AnimationPlayer")
-var slashAttack = preload("res://scenes/slash_attack.tscn")
+var slashAttack = preload("res://scenes/monster-attacks/slash-attack.tscn")
 
 const FACING_LEFT = 0
 const FACING_RIGHT = 1

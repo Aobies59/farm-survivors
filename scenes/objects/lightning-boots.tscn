@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://ds8l3iebg485p"]
+
+[ext_resource type="Texture2D" uid="uid://bfp8ntmrdnp3t" path="res://resources/items/lightning-boots.png" id="1_x8xmw"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Image" type="Sprite2D" parent="."]
+position = Vector2(750, 750)
+texture = ExtResource("1_x8xmw")

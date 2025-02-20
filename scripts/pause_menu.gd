@@ -1,17 +1,20 @@
 extends CanvasLayer
 var paused = false
+var upgrading: bool
 
 func pause():
 	paused = true
+	upgrading = $"../UpgradesMenu".visible
 	$"../UI".visible = false
+	$"../UpgradesMenu".visible = false
 	$".".visible = true
-	get_tree().paused = true
 	
 func unpause():
 	paused = false
-	$"../UI".visible = true
+	$"../UI".visible = not upgrading
+	$"../UpgradesMenu".visible = upgrading
 	$".".visible = false
-	get_tree().paused = false
+	get_tree().paused = upgrading
 
 func _input(event):
 	if event.is_action_pressed("Pause"):

@@ -3,7 +3,7 @@ extends Node2D
 var spawnerThread = Thread.new()
 
 
-var chickenScene = preload("res://characters/chicken.tscn")
+var chickenScene = preload("res://scenes/characters/chicken.tscn")
 var rng
 const X_RANGE = Vector2(16, 1456)
 const Y_RANGE = Vector2(12, 656)

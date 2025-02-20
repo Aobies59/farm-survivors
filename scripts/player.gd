@@ -9,7 +9,9 @@ var playerRangeMultiplier = 1
 var playerDamageMultiplier = 1
 var playerShootingFrequencyMultiplier = 1
 
-var speed = playerSpeed * Global.SPEED_MULTIPLIER
+var speeds = playerSpeed * Global.SPEED_MULTIPLIER
+
+var items = []
 
 enum positions { UP, LEFT, RIGHT, DOWN }
 var previousPosition = positions.DOWN
@@ -19,7 +21,7 @@ var previousAction = actions.LINEAL
 
 var enemies = []
 
-var bulletScene = preload("res://scenes/bullet.tscn")
+var bulletScene = preload("res://scenes/player-attacks/magic-ball.tscn")
 
 @export var abilitiesDelta = {
 	Global.abilities.SLIMEBALL: 0
@@ -77,8 +79,8 @@ func move(delta):
 	).normalized()
 	if inputVector:
 		timeSinceAction = 0
-		velocity.x = inputVector[0] * speed * delta
-		velocity.y = inputVector[1] * speed * delta
+		velocity.x = inputVector[0] * playerSpeed * Global.SPEED_MULTIPLIER * delta
+		velocity.y = inputVector[1] * playerSpeed * Global.SPEED_MULTIPLIER * delta
 		if inputVector[0] != 0 and inputVector[1] != 0:
 			if previousAction == actions.LINEAL:
 				if velocity.x > 0 and previousPosition != positions.RIGHT:
@@ -119,8 +121,8 @@ func move(delta):
 			else:
 				runUp()
 	else:
-		velocity.x = move_toward(velocity.x, 0, speed * delta)
-		velocity.y = move_toward(velocity.y, 0, speed * delta)
+		velocity.x = move_toward(velocity.x, 0, playerSpeed * Global.SPEED_MULTIPLIER * delta)
+		velocity.y = move_toward(velocity.y, 0, playerSpeed * Global.SPEED_MULTIPLIER * delta)
 		timeSinceAction += delta
 		if timeSinceAction >= 1.5:
 			anim.play(idleAnimationMapper[previousPosition])
@@ -133,11 +135,15 @@ func get_experience(amount):
 	experience += amount
 	if experience >= Global.levelUpExperience[level]:
 		if Global.levelUpExperience.get(level + 1):
-			experience -= Global.levelUpExperience[level]
-			level += 1
+			levelUp()
+			
+func levelUp():
+	experience -= Global.levelUpExperience[level]
+	level += 1
+	$"../UpgradesMenu".start()
 	
 func die():
-	get_tree().change_scene_to_file("res://scenes/game_over.tscn")
+	get_tree().change_scene_to_file("res://scenes/screens/game-over.tscn")
 	
 func takeDamage(damage: int) -> void:
 	health -= damage
@@ -164,9 +170,23 @@ func shootSlimeBall():
 
 func triggerAbilities(delta: float):
 	for abilityName in abilitiesDelta.keys():
-		abilitiesDelta[abilityName] = min(abilitiesDelta[abilityName] + delta, Global.abilitiesFrequency[abilityName])
+		abilitiesDelta[abilityName] = min(abilitiesDelta[abilityName] + delta * playerShootingFrequencyMultiplier, Global.abilitiesFrequency[abilityName])
 		if abilitiesFunctions[abilityName].call():
 			abilitiesDelta[abilityName] = 0
+
+func getItem(item: Global.Item):
+	for upgrade in item.Upgrades:
+		if upgrade.Stat == Global.stats.DAMAGE:
+			playerDamageMultiplier += upgrade.Amount
+		elif upgrade.Stat == Global.stats.RANGE:
+			playerRangeMultiplier += upgrade.Amount
+		elif upgrade.Stat == Global.stats.SPEED:
+			playerSpeed += upgrade.Amount
+		elif upgrade.Stat == Global.stats.SHOOT_FREQUENCY:
+			playerShootingFrequencyMultiplier += upgrade.Amount
+	# TODO: activate boosts
+	items.append(item)
+	$"../UI/Items".updateInventory()
 
 func _process(delta: float) -> void:
 	enemies = get_node("../Mobs").get_children()
@@ -178,7 +198,6 @@ func _physics_process(delta: float) -> void:
 func _on_hurt_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Damaging"):
 		takeDamage(body.damage)
-
 
 func _on_hurt_area_area_entered(area: Area2D) -> void:
 	if area.is_in_group("Damaging"):

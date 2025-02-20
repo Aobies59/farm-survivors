@@ -20,6 +20,113 @@ var abilitiesFrequency = {
 }
 var levelUpExperience = {
 	1 : 100,
-	2: 150,
-	3: 200
+	2 : 150,
+	3 : 200,
+	4 : 250,
+	5 : 300,
+	6 : 375,
+	7 : 450,
+	8 : 525,
+	9 : 600,
+	10 : 700,
+	11 : 800,
+	12 : 900,
+	13 : 1050,
+	14 : 1200,
+	15 : 1350,
+	16 : 1500,
+	17 : 1700,
+	18 : 1900,
+	19 : 2100,
+	20 : 2400,
+	21 : 2700,
+	22 : 3000,
+	23 : 3400,
+	24 : 3800,
+	25 : 4200,
+	26 : 4600,
+	27 : 5000,
+	28 : 5500,
+	29 : 6000,
+	30 : 6500,
+	31 : 7100,
+	32 : 7700,
+	33 : 8300,
+	34 : 9000,
+	35 : 9700,
+	36 : 10500,
+	37 : 11300,
+	38 : 12100,
+	39 : 13000,
+	40 : 14000,
+	41 : 15000,
+	42 : 16000,
+	43 : 17000,
+	44 : 18000,
+	45 : 19000,
+	46 : 20000,
+	47 : 21000,
+	48 : 22000,
+	49 : 23000,
+	50 : 24000
 }
+
+enum stats { DAMAGE, RANGE, SPEED, SHOOT_FREQUENCY}
+
+class Upgrade:
+	var Stat: stats
+	var Amount: float
+	
+	func _init(stat: stats, amount: float):
+		self.Stat = stat
+		self.Amount = amount
+		
+class Boost:
+	var Variable
+	var Description: String
+	
+	func _init(variable, description: String):
+		self.Variable = variable
+		self.Description = description
+
+# items
+class Item:
+	var Name: String
+	var Description: String
+	var Upgrades: Array[Upgrade] = []
+	var Boosts: Array[Boost] = []
+	var Icon: String
+	
+	func _init(name: String, description: String, icon: String, upgrades: Array[Upgrade] = [], boosts: Array[Boost] = []):
+		self.Name = name
+		self.Description = description
+		self.Upgrades = upgrades
+		self.Boosts = boosts
+		self.Icon = icon
+
+var items = [
+	Item.new(
+		"Godmode",
+		"For testing purposes",
+		"res://resources/items/lightning-boots.png",  # TODO
+		[Upgrade.new(stats.SPEED, 10), Upgrade.new(stats.SHOOT_FREQUENCY, 10), Upgrade.new(stats.DAMAGE, 10)]
+	),
+	Item.new(
+		"Adrenalyne Syringe",
+		"Feel the rush",
+		"res://resources/items/lightning-boots.png",  # TODO
+		[Upgrade.new(stats.SPEED, 0.1), Upgrade.new(stats.SHOOT_FREQUENCY, 0.1)]
+	),
+	Item.new(
+		"Boxing Gloves",
+		"Hit harder",
+		"res://resources/items/boxing-gloves.png",
+		[Upgrade.new(stats.DAMAGE, 0.5)]
+	),
+	Item.new(
+		"Lightning Boots",
+		"Move like lightning",
+		"res://resources/items/lightning-boots.png",
+		[Upgrade.new(stats.SPEED, 0.2)]
+	)
+]

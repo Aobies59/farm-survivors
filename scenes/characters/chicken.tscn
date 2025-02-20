@@ -1,33 +1,33 @@
 [gd_scene load_steps=22 format=3 uid="uid://tug2inowuu80"]
 
-[ext_resource type="Script" path="res://scripts/chicken.gd" id="1_50son"]
-[ext_resource type="Texture2D" uid="uid://ccijtv4nudufq" path="res://resources/Sprout Lands - Sprites - Basic pack/Characters/Free Chicken Sprites.png" id="1_u03qp"]
+[ext_resource type="Script" path="res://scripts/chicken.gd" id="1_a2u4j"]
+[ext_resource type="Texture2D" uid="uid://ccijtv4nudufq" path="res://resources/Sprout Lands - Sprites - Basic pack/Characters/Free Chicken Sprites.png" id="2_5cvwc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u7ila"]
 size = Vector2(13, 13)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_oc2bo"]
-atlas = ExtResource("1_u03qp")
+atlas = ExtResource("2_5cvwc")
 region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_3ay2v"]
-atlas = ExtResource("1_u03qp")
+atlas = ExtResource("2_5cvwc")
 region = Rect2(16, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wj726"]
-atlas = ExtResource("1_u03qp")
+atlas = ExtResource("2_5cvwc")
 region = Rect2(0, 16, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tcr5y"]
-atlas = ExtResource("1_u03qp")
+atlas = ExtResource("2_5cvwc")
 region = Rect2(16, 16, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yfxmo"]
-atlas = ExtResource("1_u03qp")
+atlas = ExtResource("2_5cvwc")
 region = Rect2(32, 16, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_twqnm"]
-atlas = ExtResource("1_u03qp")
+atlas = ExtResource("2_5cvwc")
 region = Rect2(48, 16, 16, 16)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_6epak"]
@@ -449,7 +449,7 @@ size = Vector2(14.5, 14.5)
 [node name="Chicken" type="CharacterBody2D" groups=["Enemy"]]
 platform_on_leave = 2
 platform_floor_layers = 4294901760
-script = ExtResource("1_50son")
+script = ExtResource("1_a2u4j")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_u7ila")
