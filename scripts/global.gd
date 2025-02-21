@@ -72,6 +72,7 @@ var levelUpExperience = {
 }
 
 enum stats { DAMAGE, RANGE, SPEED, SHOOT_FREQUENCY}
+enum rarities {NORMAL, RARE, EPIC, LEGENDARY}
 
 class Upgrade:
 	var Stat: stats
@@ -93,40 +94,61 @@ class Boost:
 class Item:
 	var Name: String
 	var Description: String
+	var Rarity: rarities
 	var Upgrades: Array[Upgrade] = []
 	var Boosts: Array[Boost] = []
 	var Icon: String
 	
-	func _init(name: String, description: String, icon: String, upgrades: Array[Upgrade] = [], boosts: Array[Boost] = []):
+	func _init(name: String, description: String, rarity:rarities, icon: String, upgrades: Array[Upgrade] = [], boosts: Array[Boost] = []):
 		self.Name = name
 		self.Description = description
+		self.Rarity = rarity
 		self.Upgrades = upgrades
 		self.Boosts = boosts
 		self.Icon = icon
+		
+var defaultItem = Item.new(
+	"Overall improvement",
+	"Gives every stat a small boost",
+	rarities.NORMAL,
+	"res://resources/items/lightning-boots.png",  # TODO
+	[Upgrade.new(stats.SPEED, 0.1), Upgrade.new(stats.SHOOT_FREQUENCY, 0.1), Upgrade.new(stats.DAMAGE, 0.1)]
+)
 
-var items = [
-	Item.new(
-		"Godmode",
-		"For testing purposes",
-		"res://resources/items/lightning-boots.png",  # TODO
-		[Upgrade.new(stats.SPEED, 10), Upgrade.new(stats.SHOOT_FREQUENCY, 10), Upgrade.new(stats.DAMAGE, 10)]
-	),
-	Item.new(
-		"Adrenalyne Syringe",
-		"Feel the rush",
-		"res://resources/items/lightning-boots.png",  # TODO
-		[Upgrade.new(stats.SPEED, 0.1), Upgrade.new(stats.SHOOT_FREQUENCY, 0.1)]
-	),
-	Item.new(
-		"Boxing Gloves",
-		"Hit harder",
-		"res://resources/items/boxing-gloves.png",
-		[Upgrade.new(stats.DAMAGE, 0.5)]
-	),
-	Item.new(
-		"Lightning Boots",
-		"Move like lightning",
-		"res://resources/items/lightning-boots.png",
-		[Upgrade.new(stats.SPEED, 0.2)]
-	)
-]
+var items = {
+	rarities.NORMAL: [
+		Item.new(
+			"Adrenalyne Syringe",
+			"Feel the rush",
+			rarities.NORMAL,
+			"res://resources/items/lightning-boots.png",  # TODO
+			[Upgrade.new(stats.SPEED, 0.1), Upgrade.new(stats.SHOOT_FREQUENCY, 0.1)]
+		),
+		Item.new(
+			"Boxing Gloves",
+			"Hit harder",
+			rarities.NORMAL,
+			"res://resources/items/boxing-gloves.png",
+			[Upgrade.new(stats.DAMAGE, 0.5)]
+		),
+	],
+	rarities.RARE: [
+		Item.new(
+			"Lightning Boots",
+			"Move like lightning",
+			rarities.RARE,
+			"res://resources/items/lightning-boots.png",
+			[Upgrade.new(stats.SPEED, 0.2)]
+		)
+	],
+	rarities.EPIC: [],
+	rarities.LEGENDARY: [
+		Item.new(
+			"Godmode",
+			"For testing purposes",
+			rarities.LEGENDARY,
+			"res://resources/items/lightning-boots.png",  # TODO
+			[Upgrade.new(stats.SPEED, 10), Upgrade.new(stats.SHOOT_FREQUENCY, 10), Upgrade.new(stats.DAMAGE, 10)]
+		),
+	]
+}
