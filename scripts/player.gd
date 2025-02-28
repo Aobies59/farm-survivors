@@ -11,7 +11,8 @@ var playerShootingFrequencyMultiplier = 1
 
 var speeds = playerSpeed * Global.SPEED_MULTIPLIER
 
-var items = []
+var items: Array[Global.Item] = []
+var actives: Array[Global.Active] = []
 
 enum positions { UP, LEFT, RIGHT, DOWN }
 var previousPosition = positions.DOWN
@@ -22,16 +23,6 @@ var previousAction = actions.LINEAL
 var enemies = []
 
 var bulletScene = preload("res://scenes/player-attacks/magic-ball.tscn")
-
-@export var abilitiesDelta = {
-	Global.abilities.SLIMEBALL: 0
-}
-var abilitiesFunctions = {
-	Global.abilities.SLIMEBALL: shootSlimeBall
-}
-var abilitiesRanges = {
-	Global.abilities.SLIMEBALL: 250
-}
 
 @export var health = 100
 @export var experience = 0.0
@@ -52,8 +43,13 @@ var stillAnimationMapper := {
 
 @onready var anim = get_node("AnimationPlayer")
 
+func lateReady():
+	self.getItem(Global.slimeBallItem)
+
 func _ready() -> void:
 	anim.play("Idle - Facing front")
+	await get_tree().process_frame
+	lateReady()
 
 func runLeft():
 	previousPosition = positions.LEFT
@@ -150,31 +146,19 @@ func takeDamage(damage: int) -> void:
 	if health <= 0:
 		call_deferred("die")
 
-func shootSlimeBall():
-	if abilitiesDelta[Global.abilities.SLIMEBALL] < Global.abilitiesFrequency[Global.abilities.SLIMEBALL]:
-		return false
-	var closestEnemy
-	var closestEnemyDistance = abilitiesRanges[Global.abilities.SLIMEBALL] + 1
-	for currEnemy in enemies:
-		var currDistance = (currEnemy.position - self.position).length()
-		if currDistance < closestEnemyDistance:
-			closestEnemy = currEnemy
-			closestEnemyDistance = currDistance
-	if not closestEnemy:
-		return false
-	var direction = (closestEnemy.position - self.position).normalized()
-	var bullet = bulletScene.instantiate()
-	add_child(bullet)
-	bullet.shoot(direction)
-	return true
+func triggerActives(delta: float):
+	for active in actives:
+		active.Delta = min(active.Delta + delta * playerShootingFrequencyMultiplier, active.Frequency)
+		if active.RunFunction.call(active, self.position, enemies, self, playerRangeMultiplier):
+			active.Delta = 0
 
-func triggerAbilities(delta: float):
-	for abilityName in abilitiesDelta.keys():
-		abilitiesDelta[abilityName] = min(abilitiesDelta[abilityName] + delta * playerShootingFrequencyMultiplier, Global.abilitiesFrequency[abilityName])
-		if abilitiesFunctions[abilityName].call():
-			abilitiesDelta[abilityName] = 0
+func getActive(active: Global.Active):
+	actives.append(active)
+	$"../UI/Abilities".addAbility(active)
 
 func getItem(item: Global.Item):
+	if item.ActiveObject:
+		getActive(item.ActiveObject)
 	for upgrade in item.Upgrades:
 		if upgrade.Stat == Global.stats.DAMAGE:
 			playerDamageMultiplier += upgrade.Amount
@@ -190,7 +174,7 @@ func getItem(item: Global.Item):
 
 func _process(delta: float) -> void:
 	enemies = get_node("../Mobs").get_children()
-	triggerAbilities(delta)
+	triggerActives(delta)
 
 func _physics_process(delta: float) -> void:
 	move(delta)

@@ -13,11 +13,6 @@ var damageMultiplier = 1.0
 var healthMultiplier = 1.0
 var chickenSpawnRate = 1.0
 
-# player
-enum abilities { SLIMEBALL }
-var abilitiesFrequency = {
-	abilities.SLIMEBALL: 0.8
-}
 var levelUpExperience = {
 	1 : 100,
 	2 : 150,
@@ -89,7 +84,27 @@ class Boost:
 	func _init(variable, description: String):
 		self.Variable = variable
 		self.Description = description
-
+		
+class Active:
+	var Name: String
+	var Description: String
+	var Delta: float = 0
+	var Frequency: float
+	var ShootingRange: float
+	var RunFunction: Callable
+	var Scene: PackedScene
+	var Sprite: PackedScene
+	
+	func _init(name: String, description: String, frequency: float, scene: PackedScene, sprite: PackedScene, runFunction: Callable, shootingRange: float = 0):
+		self.Name = name
+		self.Description = description
+		self.Frequency = frequency
+		self.Scene = scene
+		self.Sprite = sprite
+		self.RunFunction = runFunction
+		self.ShootingRange = shootingRange
+			
+	
 # items
 class Item:
 	var Name: String
@@ -98,14 +113,16 @@ class Item:
 	var Upgrades: Array[Upgrade] = []
 	var Boosts: Array[Boost] = []
 	var Icon: String
+	var ActiveObject: Active
 	
-	func _init(name: String, description: String, rarity:rarities, icon: String, upgrades: Array[Upgrade] = [], boosts: Array[Boost] = []):
+	func _init(name: String, description: String, rarity:rarities, icon: String, upgrades: Array[Upgrade] = [], boosts: Array[Boost] = [], activeObject: Active = null):
 		self.Name = name
 		self.Description = description
 		self.Rarity = rarity
 		self.Upgrades = upgrades
 		self.Boosts = boosts
 		self.Icon = icon
+		self.ActiveObject = activeObject
 		
 var defaultItem = Item.new(
 	"Overall improvement",
@@ -113,6 +130,43 @@ var defaultItem = Item.new(
 	rarities.NORMAL,
 	"res://resources/items/lightning-boots.png",  # TODO
 	[Upgrade.new(stats.SPEED, 0.1), Upgrade.new(stats.SHOOT_FREQUENCY, 0.1), Upgrade.new(stats.DAMAGE, 0.1)]
+)
+
+var slimeBall = Active.new(
+	"SlimeBall",
+	"temp",
+	0.8,
+	preload("res://scenes/player-attacks/magic-ball.tscn"),
+	preload("res://scenes/player-attacks/slime_ball_sprite.tscn"),
+	func(object, playerPosition, enemies, parentNode, rangeMultiplier):
+		if object.Delta < object.Frequency:
+			return false
+		var closestEnemy
+		var closestEnemyDistance = object.ShootingRange * rangeMultiplier + 1
+		for currEnemy in enemies:
+			var currDistance = (currEnemy.position - playerPosition).length()
+			if currDistance < closestEnemyDistance:
+				closestEnemy = currEnemy
+				closestEnemyDistance = currDistance
+		if not closestEnemy:
+			return false
+		var direction = (closestEnemy.position - playerPosition).normalized()
+		var bullet = object.Scene.instantiate()
+		parentNode.add_child(bullet)
+		bullet.shoot(direction)
+		return true
+		,
+	250
+)
+
+var slimeBallItem = 	Item.new(
+	"SlimeBall",
+	"temp",
+	rarities.LEGENDARY,
+	"res://resources/items/sprite-ball-image.png",
+	[],
+	[],
+	slimeBall
 )
 
 var items = {
@@ -143,6 +197,7 @@ var items = {
 	],
 	rarities.EPIC: [],
 	rarities.LEGENDARY: [
+		slimeBallItem,
 		Item.new(
 			"Godmode",
 			"For testing purposes",
